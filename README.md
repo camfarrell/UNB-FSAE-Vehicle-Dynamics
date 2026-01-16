@@ -9,7 +9,7 @@ This repository hosts the **Full Ride Model** for the University of New Brunswic
 The simulation integrates **Simscape Multibody** for physical modeling with **Simulink** control loops to predict vehicle behavior under dynamic race conditions.
 
 ## 🛠️ Key Features
-* **Full Ride Model:** 14-DOF multi-body simulation including chassis, suspension linkages, and tire interaction.
+* **Full Ride Model:** 7-DOF multi-body simulation including chassis, suspension linkages, and tire interaction.
 * **Frequency Analysis:** Automated scripts to determine natural frequencies and damping ratios for ride and pitch modes.
 * **Weight Transfer Logic:** Analysis of longitudinal and lateral load transfer during braking, acceleration, and steady-state cornering.
 * **Parameter Database:** Centralized `vehicle_params.m` file ensuring all subsystems use identical mass, inertia, and stiffness values.
@@ -41,10 +41,12 @@ The simulation integrates **Simscape Multibody** for physical modeling with **Si
 1.  Open `Full_Ride_Model.slx` in the `/models` folder.
 2.  Select a drive cycle (e.g., *Skidpad*, *Acceleration*, or *Step Steer*) from the input block.
 3.  Click **Run**.
-4.  Use the **Data Inspector** to view `Chassis_Pitch`, `Chassis_Roll`, and `Damper_Velocity`.
+4.  Use the **Data Inspector** to view `Chassis_Pitch`, `Chassis_Roll`, `Sprung_Acceleration`, and `Damper_Velocities`.
 
-## 👨‍🔧 Maintainers
-* **Cameron Farrell** - *Dynamic Modelling Lead*
+## 👨‍🔧 Maintained By:
+* **Cameron Farrell**
+* **Noah Stairs**
+* **Alec Leblanc**
 * **UNB Formula SAE Team**
 
 ---
