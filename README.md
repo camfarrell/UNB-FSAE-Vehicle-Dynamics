@@ -29,7 +29,7 @@ The simulation integrates **Simscape Multibody** for physical modeling with **Si
 
 ### Installation
 Clone the repository by pasting this in the MATLAB command window:
-    ```bash
+    ```
     !git clone https://github.com/YourUsername/YourRepo.git
     ```
 MATLAB will promt you for a username and password...
@@ -51,7 +51,6 @@ Copy the long string of characters (starts with ghp_...), this is your password.
 * **Cameron Farrell**
 * **Noah Stairs**
 * **Alec Leblanc**
-* **UNB Formula SAE Team**
 
 ---
 *Created for the University of New Brunswick Formula SAE Design validation.*
