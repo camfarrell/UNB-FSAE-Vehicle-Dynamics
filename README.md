@@ -2,7 +2,6 @@
 **Official Full Vehicle Simulation for UNB Formula SAE**
 
 
-
 ## 🏎️ Project Overview
 This repository hosts the **Full Ride Model** for the University of New Brunswick Formula SAE team. It serves as the primary tool for validating suspension kinematics, analyzing weight transfer, and optimizing damper settings before on-track testing.
 
@@ -29,13 +28,18 @@ The simulation integrates **Simscape Multibody** for physical modeling with **Si
     * Control System Toolbox
 
 ### Installation
-1.  Clone the repository:
+Clone the repository by pasting this in the MATLAB command window:
     ```bash
-    git clone [https://github.com/CameronFarrell/UNB-Vehicle-Dynamics.git](https://github.com/CameronFarrell/UNB-Vehicle-Dynamics.git)
+    !git clone https://github.com/YourUsername/YourRepo.git
     ```
-2.  Open MATLAB and navigate to the folder.
-3.  **Double-click the `UNB_FSAE_Project.prj` file.**
-    * *Note: This will automatically set up the MATLAB path and load necessary parameters.*
+MATLAB will promt you for a username and password...
+Click your github profile photo (top right) > Settings.
+Scroll all the way down the left sidebar and click Developer settings.
+Click Personal access tokens > Tokens (classic).
+Click Generate new token (classic).
+Select Scopes (Important): You must check the box for repo (this gives full control of private repositories).
+Click Generate token at the bottom.
+Copy the long string of characters (starts with ghp_...), this is your password.
 
 ### How to Run a Simulation
 1.  Open `Full_Ride_Model.slx` in the `/models` folder.
