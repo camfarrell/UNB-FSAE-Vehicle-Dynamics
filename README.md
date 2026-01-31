@@ -1,7 +1,6 @@
 # UNB-Vehicle-Dynamics
 **Official Full Vehicle Simulation for UNB Formula SAE**
 
-
 ## 🏎️ Project Overview
 This repository hosts the suspension simulation for the University of New Brunswick Formula SAE team. It serves as the primary tool for validating suspension kinematics, analyzing weight transfer, and optimizing damper settings before on-track testing.
 
@@ -27,7 +26,7 @@ The simulation integrates Simscape Multibody for physical modeling with Simulink
     * Simscape Multibody
     * Control System Toolbox
 
-### Installation
+### Installation (for Contributors)
 Clone the repository by pasting this in the MATLAB command window:
     ```
     !git clone https://github.com/YourUsername/YourRepo.git
@@ -41,16 +40,11 @@ MATLAB will promt you for a username and password...
 * Click Generate token at the bottom.
 * Copy the long string of characters (starts with ghp_...), this is your password.
 
-### How to Run a Simulation
-1.  Open `Full_Ride_Model.slx` in the `/models` folder.
-2.  Select a drive cycle (e.g., *Skidpad*, *Acceleration*, or *Step Steer*) from the input block.
-3.  Click **Run**.
-4.  Use the **Data Inspector** to view `Chassis_Pitch`, `Chassis_Roll`, `Sprung_Acceleration`, and `Damper_Velocities`.
-
 ## 👨‍🔧 Maintained By:
 * **Cameron Farrell**
 * **Noah Stairs**
 * **Alec Leblanc**
+* **Riley Somerville**
 
 ---
 *Created for the University of New Brunswick Formula SAE Design validation.*
