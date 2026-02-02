@@ -10,12 +10,13 @@ ay_vec = linspace(-1.4,  1.4, 100) * VP.g; %lateral accel (+ = left turn)
 bump_mult = 1.00; %bump mulitplier (1.00 = no bump, 1.10 = +10% load from bump)
 
 %% Print Example 
+
+%Load Case
 ax_print = 1.1 * VP.g; % + forward accel, - braking
 ay_print = 1.4 * VP.g; % + cornering left
 
+%Contribution breakdown print
 C = wheelLoads_components(ax_print, ay_print, bump_mult, VP);
-
-%Contribution breakdown at the print point 
 
 %assemble rows: [Static, Longitudinal, Elastic, Geometric, Offset]
 FL_terms = [C.Wf_static/2, -C.dW_L/2, -C.dW_F_el, -C.dW_F_geo, C.dW_F_stat];
@@ -25,7 +26,6 @@ RR_terms = [C.Wr_static/2, C.dW_L/2, C.dW_R_el, C.dW_R_geo, -C.dW_R_stat];
 
 labels = {'Static','Longitudinal','Elastic lat','Geom lat','CG offset'};
 
-%pretty print
 fprintf('\nWHEEL LOAD BREAKDOWN @ ax=%.2f g (+: forward), ay=%.2f g (+: left turn)\n', ax_print / VP.g, ay_print / VP.g);
 fprintf('%-18s  %10s  %10s  %10s  %10s\n', '','FL','FR','RL','RR');
 fmt = '%-18s  %10.1f  %10.1f  %10.1f  %10.1f\n';
@@ -39,19 +39,23 @@ fprintf('%-18s  %10.1f  %10.1f  %10.1f  %10.1f\n', 'TOTAL (C.*) ', C.W_FL, C.W_F
 
 fprintf('Sum of wheels: %.1f N\n', C.W_sum);
 
-%lateral tire forces
-Fy_FL = C.W_FL * VP.mu_lat;
-Fy_FR = C.W_FR * VP.mu_lat;
-Fy_RL = C.W_RL * VP.mu_lat;
-Fy_RR = C.W_RR * VP.mu_lat;
-
-fprintf('\nLATERAL TIRE FORCES @ ax=%.2f g (+: forward), ay=%.2f g (+: left turn)\n', ax_print / VP.g, ay_print / VP.g);
-fprintf('FL: %.2f N   FR: %.2f N   RL: %.2f N   RR: %.2f N\n', Fy_FL, Fy_FR, Fy_RL, Fy_RR);
-
+%Roll gradient print
 fprintf('\nROLL:\n');
 fprintf('Roll gradient: %.2f deg/g \n', VP.phi_grad_deg);
 fprintf('Front roll stiffness" %.2f Nm/rad \n', VP.Kphi_f);
 fprintf('Rear roll stiffness" %.2f Nm/rad \n', VP.Kphi_r);
+
+%3D-Forces Print
+forces = calc3DForces(ax_print, ay_print, bump_mult, VP);
+
+fprintf('\n--- 3D WHEEL FORCES (N) ---\n');
+fprintf('Case: ax = %.2fg, ay = %.2fg\n', ax_print/VP.g, ay_print/VP.g);
+fprintf('%-10s %12s %12s %12s\n', 'Wheel', 'Fx (Long)', 'Fy (Lat)', 'Fz (Vert)');
+fields = {'FL','FR','RL','RR'};
+for i = 1:4
+    f = fields{i};
+    fprintf('%-10s %12.1f %12.1f %12.1f\n', f, forces.(['Fx_',f]), forces.(['Fy_',f]), forces.(['Fz_',f]));
+end
 
 %% Plots 
 [AX, AY] = meshgrid(ax_vec, ay_vec);
@@ -151,4 +155,50 @@ function C = wheelLoads_components(ax, ay, bump_mult, VP)
     C.W_RR = C.Wr_static/2 + C.dW_L/2 + C.dW_R_el + C.dW_R_geo - C.dW_R_stat;
 
     C.W_sum = C.W_FL + C.W_FR + C.W_RL + C.W_RR;
+end
+
+function F = calc3DForces(ax, ay, bump, VP)
+    % 1. VERTICAL FORCES (Fz)
+    Wf_stat = (VP.W * VP.wf) * bump;   
+    Wr_stat = (VP.W * VP.wr) * bump;   
+    dW_L = (VP.W * VP.h / (VP.g * VP.L)) * ax; % Longitudinal load transfer
+    
+    % Lateral load transfer components
+    M_phi = (VP.W/VP.g) * ay * VP.H;
+    frac_f = VP.Kphi_f / (VP.Kphi_f + VP.Kphi_r);
+    frac_r = 1 - frac_f;
+    
+    dW_F_lat = ((frac_f * M_phi) + (VP.W/VP.g * ay * (VP.b/VP.L) * VP.Zrf)) / VP.tf;
+    dW_R_lat = ((frac_r * M_phi) + (VP.W/VP.g * ay * (VP.a/VP.L) * VP.Zrr)) / VP.tr;
+    
+    % CG offset compensation
+    dW_F_off = Wf_stat * (VP.dy / VP.tf);
+    dW_R_off = Wr_stat * (VP.dy / VP.tr);
+
+    F.Fz_FL = max(0, (Wf_stat/2) - (dW_L/2) - dW_F_lat + dW_F_off);
+    F.Fz_FR = max(0, (Wf_stat/2) - (dW_L/2) + dW_F_lat - dW_F_off);
+    F.Fz_RL = max(0, (Wr_stat/2) + (dW_L/2) - dW_R_lat + dW_R_off);
+    F.Fz_RR = max(0, (Wr_stat/2) + (dW_L/2) + dW_R_lat - dW_R_off);
+
+    % 2. LONGITUDINAL FORCES (Fx)
+    total_Fx = (VP.W / VP.g) * ax;
+    if ax >= 0 % Accelerating
+        F.Fx_FL = 0;
+        F.Fx_FR = 0;
+        F.Fx_RL = total_Fx / 2;
+        F.Fx_RR = total_Fx / 2;
+    else % Braking
+        F.Fx_FL = (total_Fx * VP.BB) / 2;
+        F.Fx_FR = (total_Fx * VP.BB) / 2;
+        F.Fx_RL = (total_Fx * (1-VP.BB)) / 2;
+        F.Fx_RR = (total_Fx * (1-VP.BB)) / 2;
+    end
+
+    % 3. LATERAL FORCES (Fy)
+    total_Fy = (VP.W / VP.g) * ay;
+    % Distributed by vertical load ratio
+    F.Fy_FL = total_Fy * (F.Fz_FL / VP.W);
+    F.Fy_FR = total_Fy * (F.Fz_FR / VP.W);
+    F.Fy_RL = total_Fy * (F.Fz_RL / VP.W);
+    F.Fy_RR = total_Fy * (F.Fz_RR / VP.W);
 end
