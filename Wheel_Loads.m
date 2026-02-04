@@ -1,4 +1,4 @@
-%% UNB FSAE | Wheel Loading and Weight Transfer
+%% UNB FSAE | Wheel Loading
 clear; clc; close all
 
 VP = Vehicle_Params();
@@ -13,7 +13,8 @@ bump_mult = 1.00; %bump mulitplier (1.00 = no bump, 1.10 = +10% load from bump)
 
 %Load Case
 ax_print = 1.1 * VP.g; % + forward accel, - braking
-ay_print = 1.4 * VP.g; % + cornering left
+ay_print = 1 * VP.g; % + cornering left
+
 
 %Contribution breakdown print
 C = wheelLoads_components(ax_print, ay_print, bump_mult, VP);
@@ -48,7 +49,7 @@ fprintf('Rear roll stiffness" %.2f Nm/rad \n', VP.Kphi_r);
 %3D-Forces Print
 forces = calc3DForces(ax_print, ay_print, bump_mult, VP);
 
-fprintf('\n--- 3D WHEEL FORCES (N) ---\n');
+fprintf('\n3D WHEEL FORCES (N)\n');
 fprintf('Case: ax = %.2fg, ay = %.2fg\n', ax_print/VP.g, ay_print/VP.g);
 fprintf('%-10s %12s %12s %12s\n', 'Wheel', 'Fx (Long)', 'Fy (Lat)', 'Fz (Vert)');
 fields = {'FL','FR','RL','RR'};
@@ -56,6 +57,60 @@ for i = 1:4
     f = fields{i};
     fprintf('%-10s %12.1f %12.1f %12.1f\n', f, forces.(['Fx_',f]), forces.(['Fy_',f]), forces.(['Fz_',f]));
 end
+
+%% Excel Data Formatting
+% Format: [ax, ay, bump]
+load_cases = [
+    1.1,  1.0, 1;   % Case 1
+    0.0,  1.0, 1;   % Case 2
+    1.1,  0.0, 1;   % Case 3
+   -1.0,  0.0, 1;   % Case 4
+   -0.8,  1.0, 1    % Case 5
+];
+
+% Labels for the Excel rows
+row_labels = {'FL Fx'; 'FL Fy'; 'FL Fz'; 'FR Fx'; 'FR Fy'; 'FR Fz'; ...
+              'RL Fx'; 'RL Fy'; 'RL Fz'; 'RR Fx'; 'RR Fy'; 'RR Fz'};
+
+% Pre-allocate data blocks
+no_bump_block = zeros(12, 5);
+with_bump_block = zeros(12, 5);
+
+for c = 1:5
+    % Scenario 1: NO BUMP 
+    F_nb = calc3DForces(load_cases(c,1)*VP.g, load_cases(c,2)*VP.g, 1, VP);
+    no_bump_block(:, c) = [F_nb.Fx_FL; F_nb.Fy_FL; F_nb.Fz_FL; ...
+                           F_nb.Fx_FR; F_nb.Fy_FR; F_nb.Fz_FR; ...
+                           F_nb.Fx_RL; F_nb.Fy_RL; F_nb.Fz_RL; ...
+                           F_nb.Fx_RR; F_nb.Fy_RR; F_nb.Fz_RR];
+                       
+    % Scenario 2: WITH BUMP (Bump Mult = 2)
+    F_wb = calc3DForces(load_cases(c,1)*VP.g, load_cases(c,2)*VP.g, 2, VP);
+    with_bump_block(:, c) = [F_wb.Fx_FL; F_wb.Fy_FL; F_wb.Fz_FL; ...
+                             F_wb.Fx_FR; F_wb.Fy_FR; F_wb.Fz_FR; ...
+                             F_wb.Fx_RL; F_wb.Fy_RL; F_wb.Fz_RL; ...
+                             F_wb.Fx_RR; F_wb.Fy_RR; F_wb.Fz_RR];
+end
+
+% Create Tables for Export
+T_no_bump = table(row_labels, no_bump_block(:,1), no_bump_block(:,2), ...
+            no_bump_block(:,3), no_bump_block(:,4), no_bump_block(:,5), ...
+            'VariableNames', {'Wheel_Comp', 'ax=1.1, ay=1', 'ax=0, ay=1', 'ax=1.1, ay=0', 'ax=-1, ay=0', 'ax=-0.8, ay=1'});
+
+T_with_bump = table(row_labels, with_bump_block(:,1), with_bump_block(:,2), ...
+            with_bump_block(:,3), with_bump_block(:,4), with_bump_block(:,5), ...
+            'VariableNames', {'Wheel_Comp', 'ax=1.1, ay=1', 'ax=0, ay=1', 'ax=1.1, ay=0', 'ax=-1, ay=0', 'ax=-0.8, ay=1'});
+
+% Write to Excel
+filename = 'FSAE_Load_Cases.xlsx';
+writetable(T_no_bump, filename, 'Sheet', 1, 'Range', 'A2');
+writetable(T_with_bump, filename, 'Sheet', 1, 'Range', 'A16');
+
+% Add Scenario Labels
+writecell({'NO BUMP (mult = 1)'}, filename, 'Sheet', 1, 'Range', 'A1');
+writecell({'WITH BUMP (mult = 2)'}, filename, 'Sheet', 1, 'Range', 'A15');
+
+fprintf('Excel file "%s" generated successfully.\n', filename);
 
 %% Plots 
 [AX, AY] = meshgrid(ax_vec, ay_vec);
