@@ -14,20 +14,14 @@ This repository serves as the primary tool for validating suspension kinematics,
 
 **Suspension Loads (WIP):** Calcualtes the combined load at each suspension member for several load cases using a matrix inversion of the contact patch forces from the `Wheel_Loads.m` file. 
 
-## 📂 Repository Structure
-* **`/models`**: Contains the core `.slx` files (Full Ride, Quarter Car, etc.).
-* **`/scripts`**: Initialization `.m` files, weight transfer & wheel-load analysis, undamped frequency testing.
-* **`/data`**: `.mat` files for vehicle data and track inputs.
-* **`/resources`**: Project definition files and path management.
-
-### Prerequisites
+## 📁 Prerequisites
 * MATLAB R2024b or newer
 * Simulink 
 * Simscape
 * Simscape Multibody
 * Control System Toolbox
 
-## Contributor Information 
+## 📋 Contributor Information 
 This link from MATLAB explains how to clone the GitHub Repository as a MATLAB Project:
 
 https://www.mathworks.com/help/matlab/matlab_prog/clone-git-repository.html
@@ -38,6 +32,7 @@ https://www.mathworks.com/help/matlab/matlab_prog/clone-git-repository.html
 * **`Commit`**: A local snapshot that saves your progress to your project's history.
 * **`Pull`**: Downloads the latest team updates from the server and merging them into your files.
 * **`Push`**: Uploads your local commits to a shared remote server for others to see.
+* **`/CAD`**: This directory is for any CAD **`.STEP`** files used in the Simscape model.
 
 ## 👨‍🔧 Maintained By:
 * **Cameron Farrell**
