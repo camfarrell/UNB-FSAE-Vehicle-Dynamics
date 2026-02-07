@@ -29,7 +29,7 @@ The simulation integrates Simscape Multibody for physical modeling with Simulink
 ### Installation (for Contributors)
 Clone the repository by pasting this in the MATLAB command window:
     ```
-    !git clone https://github.com/YourUsername/YourRepo.git
+   !git clone https://github.com/camfarrell/UNB-FSAE-Vehicle-Dynamics
     ```
 MATLAB will promt you for a username and password...
 * Click your github profile photo (top right) > Settings.
