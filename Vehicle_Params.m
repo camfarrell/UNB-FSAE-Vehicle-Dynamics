@@ -40,8 +40,8 @@ function VP = Vehicle_Params()
     VP.W   = (VP.Ms + VP.Mu) * VP.g;
     VP.Msf = VP.Ms * VP.wf;
     VP.Msr = VP.Ms * VP.wr;
-    VP.Muf = (VP.Mu * 0.45); % Assuming 45/55 split for unsprung too
-    VP.Mur = (VP.Mu * 0.55);
+    VP.Muf = (VP.Mu * VP.wf); % Assuming same weight distribution for unsprung
+    VP.Mur = (VP.Mu * VP.wr);
 
     % Derived Stiffness (Wheel Rates & Ride Rates)
     VP.Kwf = VP.MRf^2 * VP.ksf;          % Wheel Rate Front (N/m)
