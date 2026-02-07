@@ -9,7 +9,7 @@ ay_vec = linspace(-1.4,  1.4, 100) * VP.g; %lateral accel (+ = left turn)
 
 bump_mult = 1.00; %bump mulitplier (1.00 = no bump, 1.10 = +10% load from bump)
 
-%% Print Example 
+%% Print Examples
 
 %Load Case
 ax_print = 1.1 * VP.g; % + forward accel, - braking
