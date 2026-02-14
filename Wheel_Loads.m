@@ -15,7 +15,6 @@ bump_mult = 1.00; %bump mulitplier (1.00 = no bump, 1.10 = +10% load from bump)
 ax_print = 1.1 * VP.g; % + forward accel, - braking
 ay_print = 1 * VP.g; % + cornering left
 
-
 %Contribution breakdown print
 C = wheelLoads_components(ax_print, ay_print, bump_mult, VP);
 
@@ -58,60 +57,6 @@ for i = 1:4
     fprintf('%-10s %12.1f %12.1f %12.1f\n', f, forces.(['Fx_',f]), forces.(['Fy_',f]), forces.(['Fz_',f]));
 end
 
-%% Excel Data Formatting
-% Format: [ax, ay, bump]
-load_cases = [
-    1.1,  1.0, 1;   % Case 1
-    0.0,  1.0, 1;   % Case 2
-    1.1,  0.0, 1;   % Case 3
-   -1.0,  0.0, 1;   % Case 4
-   -0.8,  1.0, 1    % Case 5
-];
-
-% Labels for the Excel rows
-row_labels = {'FL Fx'; 'FL Fy'; 'FL Fz'; 'FR Fx'; 'FR Fy'; 'FR Fz'; ...
-              'RL Fx'; 'RL Fy'; 'RL Fz'; 'RR Fx'; 'RR Fy'; 'RR Fz'};
-
-% Pre-allocate data blocks
-no_bump_block = zeros(12, 5);
-with_bump_block = zeros(12, 5);
-
-for c = 1:5
-    % Scenario 1: NO BUMP 
-    F_nb = calc3DForces(load_cases(c,1)*VP.g, load_cases(c,2)*VP.g, 1, VP);
-    no_bump_block(:, c) = [F_nb.Fx_FL; F_nb.Fy_FL; F_nb.Fz_FL; ...
-                           F_nb.Fx_FR; F_nb.Fy_FR; F_nb.Fz_FR; ...
-                           F_nb.Fx_RL; F_nb.Fy_RL; F_nb.Fz_RL; ...
-                           F_nb.Fx_RR; F_nb.Fy_RR; F_nb.Fz_RR];
-                       
-    % Scenario 2: WITH BUMP (Bump Mult = 2)
-    F_wb = calc3DForces(load_cases(c,1)*VP.g, load_cases(c,2)*VP.g, 2, VP);
-    with_bump_block(:, c) = [F_wb.Fx_FL; F_wb.Fy_FL; F_wb.Fz_FL; ...
-                             F_wb.Fx_FR; F_wb.Fy_FR; F_wb.Fz_FR; ...
-                             F_wb.Fx_RL; F_wb.Fy_RL; F_wb.Fz_RL; ...
-                             F_wb.Fx_RR; F_wb.Fy_RR; F_wb.Fz_RR];
-end
-
-% Create Tables for Export
-T_no_bump = table(row_labels, no_bump_block(:,1), no_bump_block(:,2), ...
-            no_bump_block(:,3), no_bump_block(:,4), no_bump_block(:,5), ...
-            'VariableNames', {'Wheel_Comp', 'ax=1.1, ay=1', 'ax=0, ay=1', 'ax=1.1, ay=0', 'ax=-1, ay=0', 'ax=-0.8, ay=1'});
-
-T_with_bump = table(row_labels, with_bump_block(:,1), with_bump_block(:,2), ...
-            with_bump_block(:,3), with_bump_block(:,4), with_bump_block(:,5), ...
-            'VariableNames', {'Wheel_Comp', 'ax=1.1, ay=1', 'ax=0, ay=1', 'ax=1.1, ay=0', 'ax=-1, ay=0', 'ax=-0.8, ay=1'});
-
-% Write to Excel
-filename = 'FSAE_Load_Cases.xlsx';
-writetable(T_no_bump, filename, 'Sheet', 1, 'Range', 'A2');
-writetable(T_with_bump, filename, 'Sheet', 1, 'Range', 'A16');
-
-% Add Scenario Labels
-writecell({'NO BUMP (mult = 1)'}, filename, 'Sheet', 1, 'Range', 'A1');
-writecell({'WITH BUMP (mult = 2)'}, filename, 'Sheet', 1, 'Range', 'A15');
-
-fprintf('Excel file "%s" generated successfully.\n', filename);
-
 %% Plots 
 [AX, AY] = meshgrid(ax_vec, ay_vec);
 
@@ -137,6 +82,11 @@ for i = 1:4
     xlabel('Longitudinal (g)'); ylabel('Lateral (g) ''+'' = left turn');
 end
 sgtitle('Wheel Loads (N)');
+% Sensitivity Analysis Script
+spring_rates = 40000:5000:100000; % Sweep from 40N/mm to 100N/mm
+results = [];
+hold off;
+
 %% Functions 
 
 function [W_FL, W_FR, W_RL, W_RR] = wheelLoads(ax, ay, bump_mult, VP)
@@ -213,7 +163,7 @@ function C = wheelLoads_components(ax, ay, bump_mult, VP)
 end
 
 function F = calc3DForces(ax, ay, bump, VP)
-    % 1. VERTICAL FORCES (Fz)
+    % VERTICAL FORCES (Fz)
     Wf_stat = (VP.W * VP.wf) * bump;   
     Wr_stat = (VP.W * VP.wr) * bump;   
     dW_L = (VP.W * VP.h / (VP.g * VP.L)) * ax; % Longitudinal load transfer
@@ -235,7 +185,7 @@ function F = calc3DForces(ax, ay, bump, VP)
     F.Fz_RL = max(0, (Wr_stat/2) + (dW_L/2) - dW_R_lat + dW_R_off);
     F.Fz_RR = max(0, (Wr_stat/2) + (dW_L/2) + dW_R_lat - dW_R_off);
 
-    % 2. LONGITUDINAL FORCES (Fx)
+    % LONGITUDINAL FORCES (Fx)
     total_Fx = (VP.W / VP.g) * ax;
     if ax >= 0 % Accelerating
         F.Fx_FL = 0;
@@ -249,7 +199,7 @@ function F = calc3DForces(ax, ay, bump, VP)
         F.Fx_RR = (total_Fx * (1-VP.BB)) / 2;
     end
 
-    % 3. LATERAL FORCES (Fy)
+    % LATERAL FORCES (Fy)
     total_Fy = (VP.W / VP.g) * ay;
     % Distributed by vertical load ratio
     F.Fy_FL = total_Fy * (F.Fz_FL / VP.W);
