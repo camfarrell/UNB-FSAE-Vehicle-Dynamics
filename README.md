@@ -1,44 +1,38 @@
-# UNB-Vehicle-Dynamics
-**Official Full Vehicle Simulation for UNB Formula SAE**
+# Vehicle-Dynamics🏎️
+**Official Vehicle Simulation Reposoitory for UNB Formula SAE**
 
-## 🏎️ Project Overview
-This repository hosts the suspension simulation for the University of New Brunswick Formula SAE team. It serves as the primary tool for validating suspension kinematics, analyzing weight transfer, and optimizing damper settings before on-track testing.
+This repository serves as the primary tool for validating suspension kinematics, analyzing weight transfer, and optimizing ride frequencies before on-track testing.
 
-The simulation integrates Simscape Multibody for physical modeling with Simulink control loops to predict vehicle behavior under dynamic race conditions.
+## 🛠️ Main Features
+**Parameter Database:** Centralized `vehicle_params.m` function ensuring all subsystems use identical mass, inertia, dimensions, and stiffness. Some values are estimates and subject to change.
 
-## 🛠️ Key Features
-* **Full Ride Model:** 7-DOF multi-body simulation.
-* **Frequency Analysis:** Automated scripts to determine natural frequencies, spring stiffness and motion ratios.
-* **Weight Transfer Logic:** Analysis of longitudinal and lateral load transfer during braking, acceleration, and steady-state cornering.
-* **Parameter Database:** Centralized `vehicle_params.m` file ensuring all subsystems use identical mass, inertia, and stiffness values.
+**Simulink Full Ride Model:** `State_Space_Model.slx` - 7-DOF second-order Simulink simulation using State Space control loops to predict vehicle behavior under dynamic race conditions. 
 
-## 📂 Repository Structure
-* **`/models`**: Contains the core `.slx` files (Full Ride, Quarter Car, etc.).
-* **`/scripts`**: Initialization `.m` files, weight transfer & wheel-load analysis, undamped frequency testing.
-* **`/data`**: `.mat` files for vehicle data and track inputs.
-* **`/resources`**: Project definition files and path management.
+**Simscape Full Ride Model (WIP):** Full vehicle simulation using exact vehcle properties from imported CAD files to visualize frequency response to various track inputs.
 
-### Prerequisites
+**Weight Transfer:** `Wheel_Loads.m` function that outputs contact patch forces at each wheel and a breakdown of weight transfer contributions due to longitudinal and lateral load transfer during braking, acceleration, and steady-state cornering. 
+
+**Suspension Loads (WIP):** Calcualtes the combined load at each suspension member for several load cases using a matrix inversion of the contact patch forces from the `Wheel_Loads.m` file. 
+
+## 📁 Prerequisites
 * MATLAB R2024b or newer
-* **Required Toolboxes:**
-    * Simulink
-    * Simscape
-    * Simscape Multibody
-    * Control System Toolbox
+* Simulink 
+* Simscape
+* Simscape Multibody
+* Control System Toolbox
 
-### Installation (for Contributors)
-Clone the repository by pasting this in the MATLAB command window:
-    ```
-   !git clone https://github.com/camfarrell/UNB-FSAE-Vehicle-Dynamics
-    ```
-MATLAB will promt you for a username and password...
-* Click your github profile photo (top right) > Settings.
-* Scroll all the way down the left sidebar and click Developer settings.
-* Click Personal access tokens > Tokens (classic).
-* Click Generate new token (classic).
-* You must check the box for repo (this gives full control of private repositories).
-* Click Generate token at the bottom.
-* Copy the long string of characters (starts with ghp_...), this is your password.
+## 📋 Contributor Information 
+This link from MATLAB explains how to clone the GitHub Repository as a MATLAB Project:
+
+https://www.mathworks.com/help/matlab/matlab_prog/clone-git-repository.html
+
+**Best Practices:** 
+* To interact with a file, right click the blank space under files in the MATLAB Project, then click `Source Control`.
+* After modifying any files: **`Commit` -> `Pull` -> `Push`** to prevent overwriting other members changes.
+* **`Commit`**: A local snapshot that saves your progress to your project's history.
+* **`Pull`**: Downloads the latest team updates from the server and merging them into your files.
+* **`Push`**: Uploads your local commits to a shared remote server for others to see.
+* **`/CAD`**: This directory is for any CAD **`.STEP`** files used in the Simscape model.
 
 ## 👨‍🔧 Maintained By:
 * **Cameron Farrell**
